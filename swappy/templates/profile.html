@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row pt-5">
+
+    <div class="col-lg-4 mb-4">
+        <div class="main-card text-center p-4 shadow-sm border-0">
+
+            <div class="profile-avatar mx-auto mb-3 d-flex align-items-center justify-content-center shadow-sm" 
+                 style="width: 100px; height: 100px; font-size: 2.5rem; font-weight: bold; 
+                        border-radius: 50%; 
+                        color: white;
+                        background: linear-gradient(135deg, var(--primary-slate), var(--accent-teal));">
+                {{ student.user.username|default:"U"|slice:":1"|upper }}
+            </div>
+
+            <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
+                <h3 class="fw-bold mb-0" style="color: var(--primary-slate);">{{ student.user.username }}</h3>
+                {% if student.is_premium %}
+                    <span title="Premium Member" style="cursor: pointer;">👑</span>
+                {% endif %}
+            </div>
+            <p class="text-muted small mb-4">{{ student.user.email }}</p>
+
+            <div class="card bg-light border-0 rounded-4 p-3 mb-4">
+                <h6 class="fw-bold small text-uppercase text-secondary mb-3">Membership Plan</h6>
+                {% if student.is_premium %}
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill shadow-sm">
+                            <i class="bi bi-star-fill me-1"></i> Premium Pro
+                        </span>
+                    </div>
+                    <p class="small text-muted mb-3">You have full access to Advanced skills.</p>
+                    <a href="{% url 'cancel_subscription' %}" 
+                       class="text-danger small fw-bold text-decoration-none" 
+                       onclick="return confirm('Are you sure you want to cancel your premium subscription?')">
+                        Cancel Subscription
+                    </a>
+                {% else %}
+                    <div class="d-flex align-items-center justify-content-center mb-2">
+                        <span class="badge bg-secondary text-white px-3 py-2 rounded-pill">
+                            Free Plan
+                        </span>
+                    </div>
+                    <p class="small text-muted mb-3">Upgrade to learn Advanced skills from masters.</p>
+                    <a href="{% url 'subscription' %}" class="btn btn-sm btn-primary rounded-pill px-4">Upgrade Now</a>
+                {% endif %}
+            </div>
+
+            <div class="text-start mb-4">
+                <h6 class="fw-bold small text-uppercase text-secondary">Bio</h6>
+                <p class="small fw-bold" style="color: var(--primary-slate);">
+                    {{ student.bio|default:"No bio added yet. Tell us about yourself!" }}
+                </p>
+
+                <h6 class="fw-bold small text-uppercase text-secondary mt-3">Availability</h6>
+                <p class="small fw-bold" style="color: var(--primary-slate);">
+                    {{ student.get_availability_display|default:"Flexible" }}
+                </p>
+            </div>
+
+            <a href="{% url 'profile_management' %}" class="btn btn-outline-success w-100 rounded-pill py-2">Edit Settings</a>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="main-card text-center py-4 bg-white shadow-sm border-0">
+                    <h2 class="fw-bold text-success mb-0">{{ student.offered_skills.count }}</h2>
+                    <p class="text-muted small mb-0">Skills Teaching</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="main-card text-center py-4 bg-white shadow-sm border-0">
+                    <h2 class="fw-bold text-primary mb-0">{{ student.requested_skills.count }}</h2>
+                    <p class="text-muted small mb-0">Skills Learning</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="main-card text-center py-4 bg-white shadow-sm border-0">
+                    <h2 class="fw-bold text-warning mb-0">{{ student.received_connections.count }}</h2>
+                    <p class="text-muted small mb-0">Connections</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-card p-4 mt-0 mb-4 shadow-sm border-0">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0" style="color: var(--primary-slate);">Skills You Offer</h5>
+                <a href="{% url 'skill_offer' %}" class="btn btn-edu btn-sm">+ Add New</a>
+            </div>
+            <div class="row g-2">
+                {% for offer in student.offered_skills.all %}
+                <div class="col-sm-6">
+                    <div class="p-3 border rounded-3 bg-white d-flex justify-content-between align-items-center shadow-sm">
+                        <div>
+                            <span class="fw-bold" style="color: #000000;">{{ offer.skill.name }}</span>
+                            {% if offer.proficiency_level == 'Advanced' %}
+                                <small class="text-warning ms-1" title="Requires Premium to learn from you">👑</small>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge rounded-pill px-3 py-2 fw-bold" 
+                                  style="background-color: {% if offer.proficiency_level == 'Beginner' %}#28a745{% elif offer.proficiency_level == 'Intermediate' %}#ffc107{% else %}#dc3545{% endif %}; color: {% if offer.proficiency_level == 'Intermediate' %}#000000{% else %}#ffffff{% endif %};">
+                                {{ offer.proficiency_level }}
+                            </span>
+                            <a href="{% url 'delete_skill_offer' offer.id %}" class="text-danger" onclick="return confirm('Remove this skill?')">
+                                <i class="bi bi-trash3-fill"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted ps-2">You haven't listed any skills to teach yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="main-card p-4 mt-0 shadow-sm border-0">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0" style="color: var(--primary-slate);">Skills You Want to Learn</h5>
+                <a href="{% url 'skill_request' %}" class="btn btn-edu btn-sm">+ Add New</a>
+            </div>
+            <div class="row g-2">
+                {% for req in student.requested_skills.all %}
+                <div class="col-sm-6">
+                    <div class="p-3 border rounded-3 bg-white d-flex justify-content-between align-items-center shadow-sm">
+                        <span class="fw-bold" style="color: #000000;">{{ req.skill.name }}</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge rounded-pill px-3 py-2 fw-bold" 
+                                  style="background-color: {% if req.desired_proficiency == 'Beginner' %}#28a745{% elif req.desired_proficiency == 'Intermediate' %}#ffc107{% else %}#dc3545{% endif %}; color: {% if req.desired_proficiency == 'Intermediate' %}#000000{% else %}#ffffff{% endif %};">
+                                {{ req.desired_proficiency }}
+                            </span>
+                            <a href="{% url 'delete_skill_request' req.id %}" class="text-danger" onclick="return confirm('Remove this request?')">
+                                <i class="bi bi-trash3-fill"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted ps-2">No skill requests found.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

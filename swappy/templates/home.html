@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<style>
+    /* ===== 1. Horizontal Floating Graduation Caps ===== */
+    .floating-cap {
+        position: fixed;
+        font-size: 100px; 
+        opacity: 0.7;
+        z-index: 9999;
+        pointer-events: none;
+        user-select: none;
+        white-space: nowrap;
+    }
+
+    .cap1 { top: 50px;  left: -150px; animation: floatRight 50s linear infinite; }
+    .cap2 { top: 200px; left: -250px; animation: floatRight 75s linear infinite; }
+    .cap3 { top: 400px; left: -200px; animation: floatRight 60s linear infinite; }
+    .cap4 { top: 600px; left: -300px; animation: floatRight 85s linear infinite; }
+
+    @keyframes floatRight {
+        0% { left: -150px; }
+        100% { left: 110%; }
+    }
+
+    /* ===== 2. Content Reveal Animation ===== */
+    .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s ease-out;
+    }
+    .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* ===== 3. Custom Section Styling ===== */
+    .about-dark-card {
+        background: #0f172a !important; 
+        border-radius: 30px !important; 
+        position: relative; 
+        overflow: visible;
+        border: none !important;
+    }
+
+    .teal-text {
+        color: #0d9488 !important;
+    }
+
+    /* ===== 4. Highlighted Footer Style ===== */
+    .highlighted-footer {
+        background: rgba(15, 23, 42, 0.95); /* Dark Navy */
+        backdrop-filter: blur(10px);
+        color: white;
+        border-top: 4px solid #0d9488; /* Teal Accent Line */
+        padding: 60px 0 30px;
+        margin-top: 100px;
+        border-radius: 50px 50px 0 0; /* Modern Rounded Top */
+        position: relative;
+        z-index: 2;
+    }
+
+    .footer-link {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        transition: 0.3s;
+        font-weight: 600;
+    }
+
+    .footer-link:hover {
+        color: #0d9488;
+    }
+
+    .social-icon {
+        font-size: 1.5rem;
+        margin: 0 10px;
+        color: #0d9488;
+        transition: transform 0.3s ease;
+        display: inline-block;
+    }
+
+    .social-icon:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="floating-cap cap1">🎓</div>
+<div class="floating-cap cap2">🎓</div>
+<div class="floating-cap cap3">🎓</div>
+<div class="floating-cap cap4">🎓</div>
+
+<div class="position-relative" style="z-index: 2;">
+    
+    <div class="row align-items-center" style="min-height: 80vh;">
+        <div class="col-lg-6 py-5">
+            <h1 class="display-3 fw-bold mb-4" style="color: var(--primary-slate); line-height: 1.1;">
+                Master New Skills <br>
+                <span style="color: var(--accent-teal);">Through Exchange</span>
+            </h1>
+            <p class="lead mb-5" style="font-size: 1.25rem; color: var(--primary-slate); opacity: 0.8;">
+                EduSwap is the community for students to teach what they know and learn what they don't.
+                No money, just pure knowledge sharing.
+            </p>
+            <div class="d-flex gap-3 flex-wrap">
+                <a href="{% url 'register' %}" class="btn btn-edu btn-lg px-5 shadow">Get Started Now</a>
+                <a href="#about" class="btn btn-outline-dark btn-lg px-5 rounded-pill">Learn More</a>
+            </div>
+        </div>
+
+        <div class="col-lg-6 d-none d-lg-block">
+            <div class="main-card bg-white p-5 text-center border-0 shadow-lg" style="transform: rotate(2deg);">
+                <div class="display-1 mb-3">🎓</div>
+                <h3 class="fw-bold" style="color: var(--primary-slate);">Knowledge is Currency</h3>
+                <p class="text-muted">Join students already swapping skills in Python, UI Design, and more.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="services" class="py-5 mt-5">
+        <div class="text-center mb-5 reveal">
+            <h2 class="fw-bold display-5" style="color: var(--primary-slate);">Our Services</h2>
+            <div style="width: 80px; height: 5px; background: var(--accent-teal); margin: 20px auto;"></div>
+        </div>
+        <div class="row text-center g-4">
+            <div class="col-md-4 reveal">
+                <div class="main-card h-100 border-0 shadow-sm">
+                    <div class="fs-1 mb-3">🤝</div>
+                    <h5 class="fw-bold">Skill Matching</h5>
+                    <p class="text-muted small">Connect with students who have the skills you need.</p>
+                </div>
+            </div>
+            <div class="col-md-4 reveal">
+                <div class="main-card h-100 border-0 shadow-sm">
+                    <div class="fs-1 mb-3">📚</div>
+                    <h5 class="fw-bold">1-on-1 Sessions</h5>
+                    <p class="text-muted small">Learn through direct peer-to-peer interaction.</p>
+                </div>
+            </div>
+            <div class="col-md-4 reveal">
+                <div class="main-card h-100 border-0 shadow-sm">
+                    <div class="fs-1 mb-3">🚀</div>
+                    <h5 class="fw-bold">Career Growth</h5>
+                    <p class="text-muted small">Enhance your resume by teaching and learning new skills.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="about" class="py-5 my-5 reveal">
+        <div class="main-card p-5 about-dark-card shadow-lg">
+            
+            <div style="position: absolute; top: -45px; left: 45%; font-size: 70px; z-index: 3;">🎓</div>
+
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <h2 class="fw-bold display-4 mb-4 teal-text">About EduSwap</h2>
+                    <p class="lead mb-0" style="color: #ffffff; opacity: 0.9; font-size: 1.35rem; line-height: 1.5;">
+                        We believe every student has a skill to share. Our platform removes the financial barrier to education.
+                    </p>
+                </div>
+
+                <div class="col-lg-5 text-center text-lg-end mt-4 mt-lg-0">
+                    <h1 class="display-1 fw-bold teal-text" style="letter-spacing: -2px;">
+                        Free Forever
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="contact" class="py-5 reveal">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="main-card p-5 border-0 shadow-lg bg-white">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold" style="color: var(--primary-slate);">Get in Touch</h2>
+                        <p class="text-muted">Questions? We'd love to hear from you.</p>
+                    </div>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control rounded-3 border-0 bg-light p-3" placeholder="Name" name="name">
+                            </div>
+                            <div class="col-md-6">
+                                <input type="email" class="form-control rounded-3 border-0 bg-light p-3" placeholder="Email" name="email">
+                            </div>
+                            <div class="col-12">
+                                <textarea class="form-control rounded-3 border-0 bg-light p-3" rows="4" placeholder="Your Message" name="message"></textarea>
+                            </div>
+                            <div class="col-12 text-center mt-4">
+                                <button type="submit" class="btn btn-edu px-5 py-3 shadow">Send Message</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="highlighted-footer">
+    <div class="container">
+        <div class="row g-4 align-items-center">
+            <div class="col-md-4 text-center text-md-start">
+                <h3 class="fw-bold mb-3 teal-text">EduSwap</h3>
+                <p class="small opacity-75">The world's first student-to-student skill exchange platform. Connect, Learn, and Grow together.</p>
+            </div>
+
+            <div class="col-md-4 text-center">
+                <div class="d-flex justify-content-center gap-4">
+                    <a href="#about" class="footer-link">About</a>
+                    <a href="#services" class="footer-link">Services</a>
+                    <a href="#contact" class="footer-link">Contact</a>
+                </div>
+                <div class="mt-4">
+                    <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-github"></i></a>
+                </div>
+            </div>
+
+            <div class="col-md-4 text-center text-md-end">
+                <p class="mb-0 small opacity-50">© 2026 EduSwap Platform.</p>
+                <p class="small fw-bold teal-text">Built for Students, by Students.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    function reveal() {
+        var reveals = document.querySelectorAll(".reveal");
+        for (var i = 0; i < reveals.length; i++) {
+            var windowHeight = window.innerHeight;
+            var elementTop = reveals[i].getBoundingClientRect().top;
+            if (elementTop < windowHeight - 150) {
+                reveals[i].classList.add("active");
+            }
+        }
+    }
+    window.addEventListener("scroll", reveal);
+    reveal(); 
+</script>
+{% endblock %}

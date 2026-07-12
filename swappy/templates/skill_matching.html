@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="pt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold" style="color: var(--primary);">Skill Matches</h2>
+            <p class="text-muted">Students who can teach what you want to learn.</p>
+        </div>
+        <div class="bg-white p-2 px-3 rounded-pill shadow-sm border small fw-bold text-success">
+            ✨ {{ matches|length }} Potential Partners
+        </div>
+    </div>
+
+    {% if matches %}
+    <div class="row g-4">
+        {% for match in matches %}
+        <div class="col-md-4">
+            <div class="main-card h-100 mt-0 border-0 shadow-sm text-center p-4" style="border-top: 4px solid var(--accent) !important;">
+                <div class="bg-light text-success rounded-circle d-flex align-items-center justify-content-center fw-bold mx-auto mb-3" 
+                     style="width: 60px; height: 60px; font-size: 1.5rem;">
+                    {{ match.student.user.username|first|upper }}
+                </div>
+                
+                <h5 class="fw-bold mb-1">{{ match.student.user.username }}</h5>
+                <p class="text-muted small mb-3">Expert in <strong>{{ match.skill.name }}</strong></p>
+                
+                <div class="bg-light p-2 rounded-3 mb-4">
+                    <span class="text-secondary small d-block">Proficiency</span>
+                    <span class="fw-bold text-dark">{{ match.proficiency }}</span>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a href="{% url 'student_profile' match.student.id %}" class="btn btn-outline-success rounded-pill">View Profile</a>
+                    <a href="{% url 'send_connection' match.student.id %}" class="btn btn-edu">Connect Now</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="main-card text-center py-5">
+        <div class="display-1 mb-3">🔍</div>
+        <h4>No matches yet</h4>
+        <p class="text-muted">Try adding more skill requests to find matching tutors!</p>
+        <a href="{% url 'skill_request' %}" class="btn btn-edu mt-3">Add Skill Request</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

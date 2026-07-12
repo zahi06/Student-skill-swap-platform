@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="pt-5">
+    <div class="p-4 p-md-5 mb-5 shadow-lg" style="background-color: var(--primary-slate); border-radius: 24px;">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2 class="fw-bold" style="color: var(--accent-teal);">Browse Students</h2>
+                <p class="text-white opacity-75 mb-0">Discover peers ready to exchange knowledge and eliminate the financial barrier to education.</p>
+            </div>
+            <div class="col-lg-6">
+                <form method="GET" action="{% url 'browse' %}" class="row g-2">
+                    <div class="col-md-6">
+                        <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white border-0">
+                            <span class="input-group-text bg-white border-0 ps-3">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
+                            <input type="text" name="q" class="form-control border-0 py-2" placeholder="Search skill..." value="{{ query|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <select name="level" class="form-select shadow-sm rounded-pill py-2 border-0">
+                            <option value="">All Levels</option>
+                            <option value="Beginner" {% if level_filter == 'Beginner' %}selected{% endif %}>Beginner</option>
+                            <option value="Intermediate" {% if level_filter == 'Intermediate' %}selected{% endif %}>Intermediate</option>
+                            <option value="Advanced" {% if level_filter == 'Advanced' %}selected{% endif %}>Advanced (Pro)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex gap-1">
+                        <button type="submit" class="btn btn-edu rounded-pill flex-grow-1">Go</button>
+                        {% if query or level_filter %}
+                            <a href="{% url 'browse' %}" class="btn btn-light border-0 rounded-pill">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% if query or level_filter %}
+    <h5 class="fw-bold mb-4" style="color: var(--accent-teal);">Direct Matches</h5>
+    <div class="row g-4 mb-5">
+        {% for student in students %}
+        <div class="col-md-6 col-lg-4">
+            <div class="main-card h-100 mt-0 border-0 shadow-sm p-4 d-flex flex-column">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" 
+                         style="width: 50px; height: 50px; background: linear-gradient(45deg, var(--primary-slate), var(--accent-teal)) !important;">
+                        {{ student.user.username|first|upper }}
+                    </div>
+                    <div class="ms-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <h5 class="fw-bold mb-0">{{ student.user.username }}</h5>
+                            {% if student.is_premium %}
+                                <span class="badge bg-warning text-dark rounded-pill shadow-sm" style="font-size: 0.65rem;">PRO</span>
+                            {% endif %}
+                        </div>
+                        <span class="badge bg-light text-dark border fw-bold small">{{ student.get_availability_display|default:"Flexible" }}</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold small text-uppercase text-secondary mb-2">Teaching</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for offer in student.offered_skills.all %}
+                            <div class="position-relative">
+                                <span class="badge bg-white text-success border border-success-subtle px-2 py-2 fw-bold">
+                                    {{ offer.skill.name }}
+                                    {% if offer.proficiency_level == 'Advanced' %}<span class="ms-1">👑</span>{% endif %}
+                                </span>
+                                <div style="font-size: 0.6rem; color: #666; margin-top: 2px; text-align: center;" class="fw-bold">
+                                    {{ offer.proficiency_level }}
+                                </div>
+                            </div>
+                        {% empty %}
+                            <span class="text-muted small">No skills listed</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-3 border-top d-flex gap-2">
+                    {% if student.id in sent_requests %}
+                        {% for conn in user.student.sent_connections.all %}
+                            {% if conn.receiver == student and conn.status == 'pending' %}
+                                <a href="{% url 'cancel_request' conn.id %}" class="btn btn-outline-danger flex-grow-1">Cancel Request</a>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <a href="{% url 'send_connection' student.id %}" class="btn btn-edu flex-grow-1">
+                            {% for offer in student.offered_skills.all %}{% if offer.proficiency_level == 'Advanced' %}<i class="bi bi-lock-fill small me-1"></i>{% endif %}{% endfor %}
+                            Connect
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'student_profile' student.id %}" class="btn btn-light border flex-grow-1">Profile</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-muted italic">No direct matches found for your search.</p>
+        </div>
+        {% endfor %}
+    </div>
+    <hr class="my-5 border-top border-3 border-dark opacity-50">
+    {% endif %}
+
+    <h5 class="fw-bold mb-4" style="color: var(--primary-slate);">Available Peers</h5>
+    
+    <div class="row g-4">
+        {% for student in recommendations %}
+        <div class="col-md-6 col-lg-4">
+            <div class="main-card h-100 mt-0 border-0 shadow-sm p-4 d-flex flex-column">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" 
+                         style="width: 50px; height: 50px; background: linear-gradient(45deg, var(--primary-slate), var(--accent-teal)) !important;">
+                        {{ student.user.username|first|upper }}
+                    </div>
+                    <div class="ms-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <h5 class="fw-bold mb-0">{{ student.user.username }}</h5>
+                            {% if student.is_premium %}
+                                <span class="badge bg-warning text-dark rounded-pill shadow-sm" style="font-size: 0.65rem;">PRO</span>
+                            {% endif %}
+                        </div>
+                        <span class="badge bg-light text-dark border fw-bold small">{{ student.get_availability_display|default:"Flexible" }}</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold small text-uppercase text-secondary mb-2">Teaching</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for offer in student.offered_skills.all %}
+                            <div class="position-relative">
+                                <span class="badge bg-white text-success border border-success-subtle px-2 py-2 fw-bold">
+                                    {{ offer.skill.name }}
+                                    {% if offer.proficiency_level == 'Advanced' %}<span class="ms-1">👑</span>{% endif %}
+                                </span>
+                                <div style="font-size: 0.6rem; color: #666; margin-top: 2px; text-align: center;" class="fw-bold">
+                                    {{ offer.proficiency_level }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-3 border-top d-flex gap-2">
+                    {% if student.id in sent_requests %}
+                        {% for conn in user.student.sent_connections.all %}
+                            {% if conn.receiver == student and conn.status == 'pending' %}
+                                <a href="{% url 'cancel_request' conn.id %}" class="btn btn-outline-danger flex-grow-1">Cancel Request</a>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <a href="{% url 'send_connection' student.id %}" class="btn btn-edu flex-grow-1">
+                            {% for offer in student.offered_skills.all %}{% if offer.proficiency_level == 'Advanced' %}<i class="bi bi-lock-fill small me-1"></i>{% endif %}{% endfor %}
+                            Connect
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'student_profile' student.id %}" class="btn btn-light border flex-grow-1">Profile</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

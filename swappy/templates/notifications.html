@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-primary mb-3">Notifications</h2>
+
+    {% if notifications %}
+    <ul class="list-group">
+        {% for notif in notifications %}
+        <li class="list-group-item d-flex justify-content-between align-items-center {% if not notif.is_read %}list-group-item-warning{% endif %}">
+            
+            {% if notif.type == 'request_accepted' and notif.from_user %}
+                <!-- Clickable link to chat -->
+                <a href="{% url 'chat' notif.from_user.id %}" class="text-decoration-none text-dark">
+                    {{ notif.message }}
+                </a>
+            {% else %}
+                {{ notif.message }}
+            {% endif %}
+
+            <small class="text-muted">{{ notif.created_at|date:"d M H:i" }}</small>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted">You have no notifications yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

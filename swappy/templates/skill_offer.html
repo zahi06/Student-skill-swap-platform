@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-5">
+        <div class="main-card shadow-lg border-0">
+            <div class="text-center mb-4">
+                <div class="fs-1 mb-2">👨‍🏫</div>
+                <h2 class="fw-bold" style="color: var(--primary);">Teach a Skill</h2>
+                <p class="text-muted small">Share your expertise with the community.</p>
+            </div>
+
+            {% if success %}
+                <div class="alert alert-success border-0 shadow-sm mb-4" style="border-radius: 12px;">
+                    {{ success }}
+                </div>
+            {% endif %}
+
+            {% if error %}
+                <div class="alert alert-danger border-0 shadow-sm mb-4" style="border-radius: 12px;">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-secondary">Skill Name</label>
+                    <input type="text" name="skill_name" class="form-control bg-light border-0 py-2" 
+                           placeholder="e.g. Python, Digital Marketing" required style="border-radius: 10px;">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-secondary">Your Proficiency</label>
+                    <select name="proficiency_level" class="form-select bg-light border-0 py-2" required style="border-radius: 10px;">
+                        <option value="">Select Level</option>
+                        <option value="Beginner">Beginner (Basic Knowledge)</option>
+                        <option value="Intermediate">Intermediate (Good Working Knowledge)</option>
+                        <option value="Advanced">Advanced (Expert/Pro)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-edu w-100 py-3 mb-3">Add Skill Offer</button>
+            </form>
+
+            <div class="text-center">
+                <a href="{% url 'profile' %}" class="text-muted small text-decoration-none">← Back to Profile</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

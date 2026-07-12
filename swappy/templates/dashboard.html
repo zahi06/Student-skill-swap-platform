@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+    {% if expiring_soon %}
+    <div class="alert alert-warning border-0 shadow-sm rounded-4 d-flex align-items-center mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+        <div class="flex-grow-1">
+            <span class="fw-bold">Subscription Alert:</span> Your premium access expires in <span class="badge bg-danger">{{ student.days_left }} days</span>. Renew now to keep accessing Advanced skills!
+        </div>
+        <a href="{% url 'subscription' %}" class="btn btn-sm btn-warning rounded-pill px-3 fw-bold">Renew Now</a>
+    </div>
+    {% endif %}
+
+    <ul class="nav nav-tabs border-0 mb-4 small fw-bold">
+        <li class="nav-item">
+            <a class="nav-link {% if current_status == 'all' %}active text-dark border-bottom border-3 border-primary{% else %}text-muted{% endif %}" href="?status=all">
+                All ({{ all_count }})
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if current_status == 'pending' %}active text-dark border-bottom border-3 border-primary{% else %}text-muted{% endif %}" href="?status=pending">
+                Pending ({{ pending_count }})
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if current_status == 'accepted' %}active text-dark border-bottom border-3 border-primary{% else %}text-muted{% endif %}" href="?status=accepted">
+                Accepted ({{ active_count }})
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if current_status == 'completed' %}active text-dark border-bottom border-3 border-primary{% else %}text-muted{% endif %}" href="?status=completed">
+                Completed ({{ completed_count }})
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if current_status == 'cancelled' %}active text-dark border-bottom border-3 border-primary{% else %}text-muted{% endif %}" href="?status=cancelled">
+                Cancelled ({{ cancelled_count }})
+            </a>
+        </li>
+    </ul>
+
+    <div class="row">
+        <div class="col-12">
+            {% for conn in connections %}
+            <div class="main-card mb-4 p-4 border-0 shadow-sm" style="border-radius: 16px; background: white;">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3 shadow-sm" style="width: 45px; height: 45px; font-size: 1.2rem;">
+                        {% if conn.sender == student %}
+                            {{ conn.receiver.user.username|first|upper }}
+                        {% else %}
+                            {{ conn.sender.user.username|first|upper }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold">
+                            Skill Swap ↔ With 
+                            {% if conn.sender == student %}
+                                {{ conn.receiver.user.username }}
+                            {% else %}
+                                {{ conn.sender.user.username }}
+                            {% endif %}
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-4" style="background-color: #f0fff4; border: 1px solid #c6f6d5;">
+                            <small class="text-success fw-bold d-block mb-1">You'll Teach</small>
+                            <span class="fw-bold" style="color: #2d3748;">
+                                {% for offer in student.offered_skills.all %}{{ offer.skill.name }}{% if not forloop.last %}, {% endif %}{% empty %}General Skills{% endfor %}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-4" style="background-color: #f0f5ff; border: 1px solid #e0e7ff;">
+                            <small class="text-primary fw-bold d-block mb-1">You'll Learn</small>
+                            <span class="fw-bold" style="color: #2d3748;">
+                                {% for req in student.requested_skills.all %}{{ req.skill.name }}{% if not forloop.last %}, {% endif %}{% empty %}New Skills{% endfor %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4 bg-light p-3 rounded-3">
+                    <small class="text-muted fw-bold d-block mb-1">Status Message:</small>
+                    <p class="mb-0 text-dark small italic">
+                        {% if conn.status == 'pending' %}
+                            Waiting for a response...
+                        {% elif conn.status == 'accepted' %}
+                            Connection active! You can now start chatting.
+                        {% elif conn.status == 'cancelled' or conn.status == 'rejected' %}
+                            This swap request has been cancelled or rejected.
+                        {% elif conn.status == 'completed' %}
+                            This swap is finished! Hope you learned something new.
+                        {% else %}
+                            This request has been {{ conn.status }}.
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                    <small class="text-muted">Created {{ conn.timestamp|date:"d/m/Y" }}</small>
+                    <div>
+                        <span class="badge rounded-pill 
+                            {% if conn.status == 'accepted' %}bg-success text-white
+                            {% elif conn.status == 'cancelled' or conn.status == 'rejected' %}bg-danger text-white
+                            {% elif conn.status == 'completed' %}bg-info text-white
+                            {% else %}bg-warning text-dark{% endif %} px-3 py-2 me-2">
+                            {{ conn.status|capfirst }}
+                        </span>
+                        
+                        {% if conn.status == 'accepted' %}
+                            {% if conn.sender == student %}
+                                <a href="{% url 'chat' conn.receiver.id %}" class="btn btn-sm btn-outline-primary rounded-pill">Chat Now</a>
+                            {% else %}
+                                <a href="{% url 'chat' conn.sender.id %}" class="btn btn-sm btn-outline-primary rounded-pill">Chat Now</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="main-card text-center py-5">
+                <div class="display-1 mb-3">🔍</div>
+                <h5 class="text-muted">No {{ current_status }} requests yet.</h5>
+                <p class="small text-muted mb-4">Once you connect with someone, your swaps will appear here.</p>
+                <a href="{% url 'browse' %}" class="btn btn-edu">Find a Partner</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center pt-5">
+    <div class="col-lg-8">
+        <div class="main-card p-0 overflow-hidden border-0 shadow-lg">
+            <div style="height: 120px; background: linear-gradient(135deg, var(--primary-slate), var(--accent-teal));"></div>
+            
+            <div class="p-4 px-md-5 text-center" style="margin-top: -60px;">
+                <div class="bg-white p-1 rounded-circle d-inline-block shadow mb-3">
+                    <div class="bg-light text-success rounded-circle d-flex align-items-center justify-content-center fw-bold" 
+                         style="width: 100px; height: 100px; font-size: 2.5rem;">
+                        {{ student.user.username|first|upper }}
+                    </div>
+                </div>
+                
+                <h2 class="fw-bold mb-1">{{ student.user.username }}</h2>
+                <p class="text-muted mb-4">Member since {{ student.created_at|date:"F Y" }}</p>
+
+                <div class="row text-start g-4">
+                    <div class="col-md-6">
+                        <div class="p-4 rounded-4 bg-light h-100">
+                            <h6 class="fw-bold text-uppercase small text-success mb-3">Expertise (Can Teach)</h6>
+                            <ul class="list-unstyled mb-0">
+                                {% for offer in offered_skills %}
+                                <li class="mb-2 d-flex justify-content-between align-items-center">
+                                    <span>{{ offer.skill.name }} {% if offer.proficiency_level == 'Advanced' %}<i class="bi bi-patch-check-fill text-warning ms-1" title="Premium Access Only"></i>{% endif %}</span>
+                                    <span class="badge bg-success opacity-75">{{ offer.proficiency_level }}</span>
+                                </li>
+                                {% empty %}
+                                <li class="text-muted small">No skills offered yet.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="p-4 rounded-4 border h-100">
+                            <h6 class="fw-bold text-uppercase small text-primary mb-3">Learning Goals</h6>
+                            <ul class="list-unstyled mb-0">
+                                {% for req in requested_skills %}
+                                <li class="mb-2 d-flex justify-content-between align-items-center">
+                                    <span>{{ req.skill.name }}</span>
+                                    <span class="badge bg-primary opacity-75">{{ req.desired_proficiency }}</span>
+                                </li>
+                                {% empty %}
+                                <li class="text-muted small">No active requests.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="my-5 p-4 bg-light rounded-4 text-start">
+                    <h6 class="fw-bold text-uppercase small text-secondary mb-2">About {{ student.user.username }}</h6>
+                    <p class="mb-0 text-dark">{{ student.bio|default:"This student hasn't added a bio yet." }}</p>
+                    <hr>
+                    <p class="mb-0 small"><strong>Availability:</strong> {{ student.get_availability_display|default:"Flexible" }}</p>
+                </div>
+
+                {% if student != request.user.student %}
+                <div class="d-grid gap-2 mb-4">
+                    {% if pending_connection %}
+                        <a href="{% url 'cancel_request' pending_connection.id %}" class="btn btn-outline-danger btn-lg py-3 shadow">Cancel Connection Request</a>
+                    {% else %}
+                        <a href="{% url 'send_connection' student.id %}" class="btn btn-edu btn-lg py-3 shadow">
+                            Send Connection Request
+                        </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <a href="{% url 'browse' %}" class="text-muted small text-decoration-none">← Back to Browse</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

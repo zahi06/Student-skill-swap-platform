@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-10 col-lg-8">
+        <div class="main-card shadow-lg">
+            <div class="text-center mb-4">
+                <div class="display-6 mb-2">🚀</div>
+                <h2 class="fw-bold" style="color: var(--primary-slate);">Create Your Account</h2>
+                <p class="text-muted">Join the community and start swapping skills today.</p>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} mb-4 small fw-bold shadow-sm" style="border-radius: 12px; border: none;">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold mb-3 text-uppercase small text-secondary">Account Details</h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Username</label>
+                            <input type="text" name="username" class="form-control bg-light border-0 p-3" placeholder="johndoe" required style="border-radius: 12px;">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Email Address</label>
+                            <input type="email" name="email" class="form-control bg-light border-0 p-3" placeholder="name@example.com" required style="border-radius: 12px;">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Password</label>
+                            <div class="input-group">
+                                <input type="password" name="password1" id="id_password1" class="form-control bg-light border-0 p-3" placeholder="••••••••" required style="border-radius: 12px 0 0 12px;">
+                                <span class="input-group-text bg-light border-0" style="border-radius: 0 12px 12px 0; cursor: pointer;" onclick="togglePassword('id_password1', this)">
+                                    <i class="bi bi-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Confirm Password</label>
+                            <div class="input-group">
+                                <input type="password" name="password2" id="id_password2" class="form-control bg-light border-0 p-3" placeholder="••••••••" required style="border-radius: 12px 0 0 12px;">
+                                <span class="input-group-text bg-light border-0" style="border-radius: 0 12px 12px 0; cursor: pointer;" onclick="togglePassword('id_password2', this)">
+                                    <i class="bi bi-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 border-start ps-md-4">
+                        <h6 class="fw-bold mb-3 text-uppercase small text-secondary">Skill Profile</h6>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Skill You Can Teach</label>
+                            <div class="input-group">
+                                <input type="text" name="skill_teach" class="form-control bg-light border-0 p-3" placeholder="e.g. Python">
+                                <select name="teach_level" class="form-select bg-light border-0" style="max-width: 140px;">
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate">Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Skill You Want to Learn</label>
+                            <div class="input-group">
+                                <input type="text" name="skill_learn" class="form-control bg-light border-0 p-3" placeholder="e.g. React">
+                                <select name="learn_level" class="form-select bg-light border-0" style="max-width: 140px;">
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate">Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold">General Availability</label>
+                            <select name="availability" class="form-select bg-light border-0 p-3" required style="border-radius: 12px;">
+                                <option value="">Select Availability</option>
+                                <option value="morning">Morning</option>
+                                <option value="afternoon">Afternoon</option>
+                                <option value="evening">Evening</option>
+                                <option value="weekends">Weekends</option>
+                                <option value="flexible">Flexible</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-edu btn-lg px-5 w-100 py-3 shadow">Complete Registration</button>
+                    <p class="text-muted small mt-3">
+                        Already have an account? <a href="{% url 'login' %}" class="fw-bold text-decoration-none" style="color: var(--accent-teal);">Login here</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePassword(inputId, iconElement) {
+    const passwordInput = document.getElementById(inputId);
+    const icon = iconElement.querySelector('i');
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+    }
+}
+</script>
+{% endblock %}

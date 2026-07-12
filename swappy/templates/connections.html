@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center pt-5">
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold" style="color: var(--primary-slate);">Network & Updates</h2>
+            <div class="text-muted small fw-bold">Manage your community and messages</div>
+        </div>
+
+        <div class="main-card p-0 overflow-hidden border-0 shadow-sm">
+            <ul class="nav nav-tabs nav-fill bg-light border-0" id="connectionTabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active py-3 fw-bold border-0" id="received-tab" data-bs-toggle="tab" data-bs-target="#received" type="button">
+                        📥 Received {% if received.count > 0 %}<span class="badge bg-danger ms-1">{{ received.count }}</span>{% endif %}
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link py-3 fw-bold border-0" id="sent-tab" data-bs-toggle="tab" data-bs-target="#sent" type="button">
+                        📤 Sent
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link py-3 fw-bold border-0" id="notify-tab" data-bs-toggle="tab" data-bs-target="#notify" type="button">
+                        🔔 Notifications 
+                        {% if notifications.count > 0 %}<span class="badge bg-danger ms-1">{{ notifications.count }}</span>{% endif %}
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content p-4 bg-white" id="connectionTabsContent">
+                
+                <div class="tab-pane fade show active" id="received" role="tabpanel">
+                    {% for conn in received %}
+                    <div class="d-flex align-items-center justify-content-between p-3 mb-3 border rounded-4 bg-white shadow-sm">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 50px; height: 50px;">
+                                {{ conn.sender.user.username|first|upper }}
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="mb-0 fw-bold">{{ conn.sender.user.username }}</h6>
+                                <p class="mb-0 small text-muted">Status: {{ conn.status|capfirst }}</p>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            {% if conn.status == "pending" %}
+                                <a href="{% url 'update_connection' conn.id 'accept' %}" class="btn btn-success btn-sm px-4 rounded-pill">Accept</a>
+                                <a href="{% url 'update_connection' conn.id 'reject' %}" class="btn btn-outline-danger btn-sm px-4 rounded-pill">Reject</a>
+                            {% elif conn.status == "accepted" %}
+                                <a href="{% url 'update_connection' conn.id 'complete' %}" class="btn btn-primary btn-sm px-4 rounded-pill">Complete Swap</a>
+                            {% else %}
+                                <span class="badge rounded-pill p-2 px-3 border {% if conn.status == 'completed' %}bg-info-subtle text-info border-info{% elif conn.status == 'accepted' %}bg-success-subtle text-success border-success{% else %}bg-light text-muted{% endif %}">
+                                    {{ conn.status|capfirst }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}<p class="text-center text-muted py-5">No incoming requests.</p>{% endfor %}
+                </div>
+
+                <div class="tab-pane fade" id="sent" role="tabpanel">
+                    {% for conn in sent %}
+                    <div class="d-flex align-items-center justify-content-between p-3 mb-3 border rounded-4 bg-white shadow-sm">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center text-muted fw-bold" style="width: 50px; height: 50px;">
+                                {{ conn.receiver.user.username|first|upper }}
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="mb-0 fw-bold">{{ conn.receiver.user.username }}</h6>
+                                <p class="mb-0 small text-muted">Status: {{ conn.status|capfirst }}</p>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            {% if conn.status == "pending" %}
+                                <a href="{% url 'cancel_request' conn.id %}" class="btn btn-outline-danger btn-sm px-4 rounded-pill">Cancel Request</a>
+                            {% elif conn.status == "accepted" %}
+                                <a href="{% url 'update_connection' conn.id 'complete' %}" class="btn btn-primary btn-sm px-4 rounded-pill">Complete Swap</a>
+                            {% else %}
+                                <span class="badge rounded-pill p-2 px-3 border bg-light text-muted">
+                                    {{ conn.status|capfirst }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}<p class="text-center text-muted py-5">You haven't sent any requests.</p>{% endfor %}
+                </div>
+
+                <div class="tab-pane fade" id="notify" role="tabpanel">
+                    {% if notifications %}
+                        <div class="text-end mb-3">
+                            <a href="{% url 'clear_notifications' %}" class="btn btn-sm btn-link text-danger text-decoration-none fw-bold">
+                                <i class="bi bi-trash3"></i> Clear All
+                            </a>
+                        </div>
+                    {% endif %}
+                    
+                    {% for note in notifications %}
+                    <div class="p-3 mb-2 rounded-4 shadow-sm border-start border-4 
+                        {% if note.type == 'new_message' %}border-info bg-info-subtle
+                        {% elif note.type == 'renewal_alert' %}border-warning bg-warning-subtle
+                        {% elif note.type == 'request_cancelled' %}border-danger bg-danger-subtle
+                        {% elif note.type == 'request_accepted' %}border-success bg-success-subtle
+                        {% else %}bg-light{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 fw-bold text-dark">{{ note.message }}</h6>
+                                <small class="text-muted">{{ note.created_at|timesince }} ago</small>
+                            </div>
+                            <div>
+                                {% if note.type == 'new_message' %}
+                                    <a href="{% url 'chat' note.from_user.id %}" class="btn btn-sm btn-info rounded-pill px-3">View</a>
+                                {% elif note.type == 'renewal_alert' %}
+                                    <a href="{% url 'subscription' %}" class="btn btn-sm btn-warning rounded-pill px-3">Renew</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5">
+                        <p class="text-muted">No new notifications.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .nav-tabs .nav-link.active {
+        background-color: white !important;
+        color: var(--accent-teal) !important;
+        border-bottom: 3px solid var(--accent-teal) !important;
+    }
+</style>
+{% endblock %}

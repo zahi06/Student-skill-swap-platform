@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-6">
+        <div class="main-card shadow-lg">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold" style="color: var(--primary);">Account Settings</h2>
+                <p class="text-muted">Update your personal information and preferences.</p>
+            </div>
+
+            {% if success %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 12px;">
+                    <strong>Success!</strong> {{ success }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+
+            {% if error %}
+                <div class="alert alert-danger" style="border-radius: 12px;">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Username</label>
+                    <input type="text" name="username" class="form-control bg-light border-0" 
+                           value="{{ student.user.username }}" required style="border-radius: 10px;">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Email Address</label>
+                    <input type="email" name="email" class="form-control bg-light border-0" 
+                           value="{{ student.user.email }}" required style="border-radius: 10px;">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Short Bio</label>
+                    <textarea name="bio" class="form-control bg-light border-0" rows="3" 
+                              style="border-radius: 10px;">{{ student.bio|default:"" }}</textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold">Availability</label>
+                    <select name="availability" class="form-select bg-light border-0" style="border-radius: 10px;">
+                        <option value="morning" {% if student.availability == "morning" %}selected{% endif %}>Morning</option>
+                        <option value="afternoon" {% if student.availability == "afternoon" %}selected{% endif %}>Afternoon</option>
+                        <option value="evening" {% if student.availability == "evening" %}selected{% endif %}>Evening</option>
+                        <option value="weekends" {% if student.availability == "weekends" %}selected{% endif %}>Weekends</option>
+                        <option value="flexible" {% if student.availability == "flexible" %}selected{% endif %}>Flexible</option>
+                    </select>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-edu flex-grow-1 py-2 shadow-sm">Save Changes</button>
+                    <a href="{% url 'profile' %}" class="btn btn-outline-secondary px-4 py-2" style="border-radius: 12px;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

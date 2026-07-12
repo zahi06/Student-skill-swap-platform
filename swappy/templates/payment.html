@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold" style="color: var(--primary-slate);">Secure Payment</h2>
+                <p class="text-muted fw-bold">Complete your Premium Pro subscription</p>
+            </div>
+
+            <div class="main-card p-4 border-0 shadow-lg rounded-4 bg-white">
+                <div class="p-3 mb-4 rounded-3 text-center" style="background-color: #f8f9fa; border: 1px dashed #dee2e6;">
+                    <span class="text-muted small text-uppercase fw-bold d-block">Amount to Pay</span>
+                    <span class="display-6 fw-bold" style="color: var(--accent-teal);">₹100</span>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3 small text-uppercase text-secondary">Choose Payment Method</h6>
+                    <div class="d-flex gap-2">
+                        <button type="button" id="btn-card" class="btn btn-dark flex-grow-1 py-2" onclick="showMethod('card')">
+                            <i class="bi bi-credit-card me-2"></i>Card
+                        </button>
+                        <button type="button" id="btn-upi" class="btn btn-outline-dark flex-grow-1 py-2" onclick="showMethod('upi')">
+                            <i class="bi bi-qr-code me-2"></i>UPI / QR
+                        </button>
+                    </div>
+                </div>
+
+                <form action="{% url 'upgrade_to_premium' %}" method="POST" id="payment-form" novalidate>
+                    {% csrf_token %}
+
+                    <div id="section-card">
+                        <div class="mb-3">
+                            <label class="small fw-bold text-muted">Card Number</label>
+                            <input type="text" name="card_no" id="card_no" class="form-control rounded-pill border-2" placeholder="16-digit number" maxlength="16">
+                            <div class="invalid-feedback ms-2">Please enter a valid 16-digit card number.</div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="small fw-bold text-muted">Expiry</label>
+                                <input type="text" name="expiry" id="expiry" class="form-control rounded-pill border-2" placeholder="MM/YY" maxlength="5">
+                                <div id="expiry-feedback" class="invalid-feedback ms-2">Format: MM/YY</div>
+                            </div>
+                            <div class="col-6">
+                                <label class="small fw-bold text-muted">CVV</label>
+                                <input type="password" name="cvv" id="cvv" class="form-control rounded-pill border-2" placeholder="***" maxlength="3">
+                                <div class="invalid-feedback ms-2">3-digit CVV required.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="section-upi" style="display: none;" class="text-center py-3">
+                        <p class="small text-muted mb-3">Scan this QR code or enter UPI ID</p>
+                        <div class="p-2 d-inline-block bg-white border rounded-4 shadow-sm mb-3">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=EduSwapPremium" alt="QR" class="img-fluid">
+                        </div>
+                        <div class="mb-3 text-start">
+                            <label class="small fw-bold text-muted ms-3">Enter UPI ID</label>
+                            <input type="text" name="upi_id" id="upi_id" class="form-control rounded-pill border-2 text-center" placeholder="example@upi">
+                            <div id="upi-feedback" class="invalid-feedback text-center">Invalid UPI ID format.</div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4 opacity-25">
+
+                    <button type="submit" id="pay-btn" class="btn btn-edu w-100 py-3 rounded-pill fw-bold shadow-sm">
+                        <span id="btn-text">Verify & Pay ₹100</span>
+                    </button>
+                </form>
+                
+                <div class="text-center mt-3">
+                    <small class="text-muted"><i class="bi bi-shield-lock-fill text-success"></i> Secure SSL Transaction</small>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'subscription' %}" class="btn btn-outline-danger px-5 rounded-pill py-2 fw-bold shadow-sm">
+                    Cancel Payment
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let activeMethod = 'card';
+
+    function showMethod(method) {
+        activeMethod = method;
+        const cardSec = document.getElementById('section-card');
+        const upiSec = document.getElementById('section-upi');
+        const cardBtn = document.getElementById('btn-card');
+        const upiBtn = document.getElementById('btn-upi');
+
+        if (method === 'card') {
+            cardSec.style.display = 'block';
+            upiSec.style.display = 'none';
+            cardBtn.className = 'btn btn-dark flex-grow-1 py-2';
+            upiBtn.className = 'btn btn-outline-dark flex-grow-1 py-2';
+        } else {
+            cardSec.style.display = 'none';
+            upiSec.style.display = 'block';
+            upiBtn.className = 'btn btn-dark flex-grow-1 py-2';
+            cardBtn.className = 'btn btn-outline-dark flex-grow-1 py-2';
+        }
+    }
+
+    function validateUPI(upi) {
+        const upiRegex = /^[\w.-]+@[\w.-]+$/;
+        return upiRegex.test(upi);
+    }
+
+    function validateExpiry(inputVal) {
+        const feedback = document.getElementById('expiry-feedback');
+        if (!/^\d{2}\/\d{2}$/.test(inputVal)) {
+            feedback.innerHTML = "Use format MM/YY";
+            return false;
+        }
+        const parts = inputVal.split('/');
+        const month = parseInt(parts[0], 10);
+        const year = parseInt("20" + parts[1], 10);
+
+        if (month < 1 || month > 12) {
+            feedback.innerHTML = "Invalid Month";
+            return false;
+        }
+
+        const now = new Date();
+        const currentMonth = now.getMonth() + 1;
+        const currentYear = now.getFullYear();
+
+        if (year < currentYear || (year === currentYear && month < currentMonth)) {
+            feedback.innerHTML = "Card has expired!";
+            return false;
+        }
+        return true;
+    }
+
+    document.getElementById('payment-form').onsubmit = function(e) {
+        let isValid = true;
+        const form = this;
+        const inputs = form.querySelectorAll('input');
+        inputs.forEach(i => i.classList.remove('is-invalid'));
+
+        if (activeMethod === 'card') {
+            const cardNo = document.getElementById('card_no');
+            const expiry = document.getElementById('expiry');
+            const cvv = document.getElementById('cvv');
+
+            if (cardNo.value.length !== 16) {
+                cardNo.classList.add('is-invalid');
+                isValid = false;
+            }
+            if (!validateExpiry(expiry.value)) {
+                expiry.classList.add('is-invalid');
+                isValid = false;
+            }
+            if (cvv.value.length !== 3) {
+                cvv.classList.add('is-invalid');
+                isValid = false;
+            }
+        } else {
+            const upiId = document.getElementById('upi_id');
+            const feedback = document.getElementById('upi-feedback');
+            
+            if (upiId.value.trim() === "") {
+                feedback.innerHTML = "UPI ID is required.";
+                upiId.classList.add('is-invalid');
+                isValid = false;
+            } else if (!validateUPI(upiId.value)) {
+                feedback.innerHTML = "Enter a valid UPI ID (e.g. name@bank)";
+                upiId.classList.add('is-invalid');
+                isValid = false;
+            }
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+        } else {
+            const btn = document.getElementById('pay-btn');
+            const text = document.getElementById('btn-text');
+            text.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+            btn.classList.add('disabled');
+        }
+    };
+
+    document.getElementById('expiry').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            e.target.value = value.slice(0, 2) + '/' + value.slice(2, 4);
+        } else {
+            e.target.value = value;
+        }
+    });
+</script>
+
+<style>
+    /* Put the Red Boxes back */
+    .invalid-feedback { font-size: 0.75rem; font-weight: bold; color: #dc3545; display: none; }
+    .form-control.is-invalid { border-color: #dc3545 !important; border-width: 2px; }
+    .is-invalid ~ .invalid-feedback { display: block; }
+</style>
+{% endblock %}

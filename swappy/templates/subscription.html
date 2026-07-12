@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    
+    <div class="p-4 p-md-5 mb-5 shadow-lg text-center" style="background-color: var(--primary-slate); border-radius: 24px;">
+        <h1 class="fw-bold display-5 text-white">Elevate Your <span style="color: var(--accent-teal);">Learning</span></h1>
+        <p class="lead text-white opacity-75 mb-0">Access expert-level mentors and master advanced skills from our top community members.</p>
+    </div>
+
+    {% if student.is_premium %}
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-10 col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-info-subtle border-start border-info border-5">
+                <div class="row align-items-center">
+                    <div class="col-md-7 text-start">
+                        <h5 class="fw-bold text-dark"><i class="bi bi-patch-check-fill text-info me-2"></i> Active Subscription Details</h5>
+                        <p class="mb-1 text-muted small"><strong>Subscribed on:</strong> {{ student.premium_since|date:"d M Y, h:i A" }}</p>
+                        <p class="mb-0 text-muted small"><strong>Expires on:</strong> {{ student.premium_expiry|date:"d M Y, h:i A" }}</p>
+                    </div>
+                    <div class="col-md-5 text-center text-md-end mt-3 mt-md-0">
+                        <div class="p-2 rounded-3 bg-white shadow-sm border border-info-subtle">
+                            <div class="small fw-bold text-uppercase text-muted mb-1" style="font-size: 0.65rem;">Time Remaining</div>
+                            <div id="countdown" class="fw-bold text-info fs-5 tabular-nums">
+                                --d --h --m --s
+                            </div>
+                        </div>
+                        <a href="{% url 'cancel_subscription' %}" class="btn btn-link text-danger text-decoration-none small fw-bold mt-2 p-0">Cancel Plan</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateCountdown() {
+            // Get the expiry date from Python logic (ISO format for JS compatibility)
+            const expiryDate = new Date("{{ student.premium_expiry|date:'Y-m-d H:i:s' }}").getTime();
+            const now = new Date().getTime();
+            const distance = expiryDate - now;
+
+            if (distance < 0) {
+                document.getElementById("countdown").innerHTML = "EXPIRED";
+                document.getElementById("countdown").classList.replace("text-info", "text-danger");
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("countdown").innerHTML = 
+                days + "d " + hours + "h " + minutes + "m " + seconds + "s";
+        }
+
+        // Update the count every 1 second
+        setInterval(updateCountdown, 1000);
+        updateCountdown(); // Run immediately on load
+    </script>
+    {% endif %}
+
+    <div class="row justify-content-center g-4">
+        
+        <div class="col-md-5 col-lg-4">
+            <div class="main-card h-100 border-0 shadow-sm p-4 text-center rounded-4 mt-0">
+                <div class="mb-3">
+                    <i class="bi bi-seedling text-success fs-1"></i>
+                </div>
+                <h3 class="fw-bold">Explorer</h3>
+                <p class="text-muted small">Perfect for beginners getting started</p>
+                <div class="display-5 my-3 fw-bold">₹0<span class="fs-6 text-muted fw-normal">/mo</span></div>
+                
+                <hr class="my-4">
+                
+                <ul class="list-unstyled mb-4 text-start ms-2">
+                    <li class="mb-3 d-flex align-items-center">
+                        <i class="bi bi-check2-circle text-success me-2"></i> Beginner Level Swaps
+                    </li>
+                    <li class="mb-3 d-flex align-items-center">
+                        <i class="bi bi-check2-circle text-success me-2"></i> Intermediate Level Swaps
+                    </li>
+                    <li class="mb-3 d-flex align-items-center text-muted">
+                        <i class="bi bi-x-circle me-2"></i> Advanced Master Skills
+                    </li>
+                    <li class="mb-3 d-flex align-items-center text-muted">
+                        <i class="bi bi-x-circle me-2"></i> Priority Support
+                    </li>
+                </ul>
+                
+                {% if not student.is_premium %}
+                    <button class="btn btn-outline-secondary w-100 rounded-pill disabled py-2">Current Plan</button>
+                {% else %}
+                    <a href="{% url 'cancel_subscription' %}" class="btn btn-outline-danger w-100 rounded-pill py-2">Switch to Free</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-5 col-lg-4">
+            <div class="main-card h-100 border-primary shadow-lg p-4 text-center rounded-4 mt-0" style="border: 2px solid var(--primary-slate) !important; position: relative;">
+                <div class="position-absolute top-0 start-50 translate-middle w-100">
+                    <span class="badge bg-primary px-4 py-2 rounded-pill shadow-sm" style="background: linear-gradient(45deg, var(--primary-slate), var(--accent-teal)) !important;">
+                        RECOMMENDED
+                    </span>
+                </div>
+                
+                <div class="mb-3 mt-2">
+                    <i class="bi bi-lightning-charge-fill text-warning fs-1"></i>
+                </div>
+                <h3 class="fw-bold">Premium Pro</h3>
+                <p class="text-muted small">For serious learners and professionals</p>
+                <div class="display-5 my-3 fw-bold" style="color: var(--primary-slate);">₹100<span class="fs-6 text-muted fw-normal">/mo</span></div>
+                
+                <hr class="my-4">
+                
+                <ul class="list-unstyled mb-4 text-start ms-2">
+                    <li class="mb-3 d-flex align-items-center">
+                        <i class="bi bi-check2-all text-primary me-2"></i> <strong>Unlimited</strong> Skill Swaps
+                    </li>
+                    <li class="mb-3 d-flex align-items-center text-primary fw-bold">
+                        <i class="bi bi-star-fill me-2"></i> Required for Advanced Skills
+                    </li>
+                    <li class="mb-3 d-flex align-items-center">
+                        <i class="bi bi-check2-all text-primary me-2"></i> Verified Pro Badge (👑)
+                    </li>
+                    <li class="mb-3 d-flex align-items-center">
+                        <i class="bi bi-check2-all text-primary me-2"></i> Priority Chat Support
+                    </li>
+                </ul>
+                
+                {% if student.is_premium %}
+                    <button class="btn btn-success w-100 rounded-pill disabled py-2">Plan Active</button>
+                {% else %}
+                    <a href="{% url 'payment_page' %}" class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm py-2 fw-bold" style="background-color: var(--primary-slate); border: none;">
+                        Upgrade Now
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <a href="{% url 'profile' %}" class="btn btn-outline-dark rounded-pill px-5 shadow-sm fw-bold">
+            Back to Profile
+        </a>
+    </div>
+</div>
+
+<style>
+    /* Keeps the countdown numbers from "jumping" as they change */
+    .tabular-nums {
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.5px;
+    }
+</style>
+{% endblock %}
