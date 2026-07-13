@@ -43,6 +43,9 @@ Student Skill Swap Platform is a web application that allows students to connect
    http://127.0.0.1:8000/
    ```
 
+## 📸 Screenshots
+<img width="760" height="484" alt="image" src="https://github.com/user-attachments/assets/00263b17-09d9-4d3b-b770-3116bb6b0565" />
+
 ## 🔮 Future Enhancements
 - Real-Time Chat
 - Video Calling
